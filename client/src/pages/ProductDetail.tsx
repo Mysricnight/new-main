@@ -774,7 +774,7 @@ const ProductDetail: React.FC = () => {
 
               {/* Product Details */}
               <Box p={8} display="flex" flexDirection="column">
-                <VStack spacing={8} align="stretch" flex={1}>
+                <VStack spacing={10} align="stretch" flex={1}>
                   {/* Counterfeit Warning */}
                   {product && <CounterfeitWarning productId={product.id} />}
 
@@ -799,7 +799,7 @@ const ProductDetail: React.FC = () => {
                     </Flex>
 
                     {/* Price voting */}
-                    <Box mt={4} mb={4}>
+                    <Box mt={6} mb={6}>
                       <Text fontSize="sm" color="gray.600" mb={2}>Price feedback</Text>
                       <HStack spacing={3}>
                         <Button
@@ -826,7 +826,7 @@ const ProductDetail: React.FC = () => {
                     </Box>
 
                     {/* Save/Watch and Share buttons */}
-                    <Flex justify="space-between" align="center" gap={6} mt={6}>
+                    <Flex justify="space-between" align="center" gap={6} mt={8}>
                       <HStack spacing={2}>
                         <Tooltip label={isSaved ? "Remove from saved" : "Save to watchlist"}>
                           <IconButton
@@ -872,7 +872,7 @@ const ProductDetail: React.FC = () => {
                     </Flex>
 
                     {/* Premium + Status badges aligned together with gap 2 */}
-                    <HStack spacing={2} align="center" mt={4}>
+                    <HStack spacing={2} align="center" mt={6}>
                       {product.condition && (
                         <Badge colorScheme="blue">{product.condition}</Badge>
                       )}
@@ -886,7 +886,7 @@ const ProductDetail: React.FC = () => {
                       )}
                     </HStack>
                     {product.suggested_value && product.suggested_value > 0 && (
-                      <Text mt={4} color="gray.600" fontSize="sm">
+                      <Text mt={6} color="gray.600" fontSize="sm">
                         Suggested Value: {product.suggested_value} points
                       </Text>
                     )}
