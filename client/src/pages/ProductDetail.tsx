@@ -774,7 +774,7 @@ const ProductDetail: React.FC = () => {
 
               {/* Product Details */}
               <Box p={8} display="flex" flexDirection="column">
-                <VStack spacing={10} align="stretch" flex={1}>
+                <VStack spacing={9} align="stretch" flex={1}>
                   {/* Counterfeit Warning */}
                   {product && <CounterfeitWarning productId={product.id} />}
 
