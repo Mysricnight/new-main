@@ -194,10 +194,18 @@ const TradeCompletionModal: React.FC<TradeCompletionModalProps> = ({
       
       setHasSubmitted(true)
       toast({
-        title: 'Trade completion submitted!',
-        description: 'Waiting for the other party to confirm...',
+        title: '✓ Trade Completed!',
+        description: 'Waiting for other party to confirm...',
         status: 'success',
-        duration: 3000
+        duration: 3000,
+        isClosable: true,
+        position: 'top',
+        bg: 'blue.500',
+        color: 'white',
+        borderRadius: 'md',
+        fontSize: 'md',
+        fontWeight: 'bold',
+        boxShadow: 'lg',
       })
       
       // Refresh status

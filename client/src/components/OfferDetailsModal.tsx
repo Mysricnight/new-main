@@ -118,7 +118,20 @@ const OfferDetailsModal: React.FC<OfferDetailsModalProps> = ({ trade, isOpen, on
     if (!effectiveTrade) return
     try {
       await api.put(`/api/trades/${effectiveTrade.id}`, { action: 'accept' } as TradeAction)
-      toast({ title: 'Offer accepted', status: 'success' })
+      toast({ 
+        title: '✓ Offer Accepted!', 
+        description: 'Trade proceeding to next stage.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+        position: 'top',
+        bg: 'green.500',
+        color: 'white',
+        borderRadius: 'md',
+        fontSize: 'md',
+        fontWeight: 'bold',
+        boxShadow: 'lg',
+      })
       onAccepted()
       onClose()
     } catch (e: any) {
@@ -134,7 +147,20 @@ const OfferDetailsModal: React.FC<OfferDetailsModalProps> = ({ trade, isOpen, on
     if (!effectiveTrade) return
     try {
       await api.put(`/api/trades/${effectiveTrade.id}`, { action: 'decline' } as TradeAction)
-      toast({ title: 'Offer declined', status: 'success' })
+      toast({ 
+        title: '✗ Offer Declined',
+        description: 'The offer has been declined.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: 'top',
+        bg: 'red.500',
+        color: 'white',
+        borderRadius: 'md',
+        fontSize: 'md',
+        fontWeight: 'bold',
+        boxShadow: 'lg',
+      })
       onDeclined()
       onClose()
       onDeclineClose()
@@ -173,7 +199,20 @@ const OfferDetailsModal: React.FC<OfferDetailsModalProps> = ({ trade, isOpen, on
     if (!effectiveTrade) return
     try {
       await api.put(`/api/trades/${effectiveTrade.id}`, { action: 'counter', counter_offered_product_ids: selectedCounterIds, message: counterMsg, counter_offered_cash_amount: cashDelta ? Number(cashDelta) : undefined } as TradeAction)
-      toast({ title: 'Counter offer sent', status: 'success' })
+      toast({ 
+        title: '🔄 Counter Offer Sent!', 
+        description: 'Waiting for response.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+        position: 'top',
+        bg: 'blue.500',
+        color: 'white',
+        borderRadius: 'md',
+        fontSize: 'md',
+        fontWeight: 'bold',
+        boxShadow: 'lg',
+      })
       onAccepted()
       onClose()
     } catch (e: any) {
@@ -228,8 +267,21 @@ const OfferDetailsModal: React.FC<OfferDetailsModalProps> = ({ trade, isOpen, on
       await api.put(`/api/trades/${effectiveTrade.id}`, {
         action: 'approve_option_change',
       } as TradeAction)
-      toast({ title: 'Option change approved', description: 'The trade option has been updated.', status: 'success' })
-      onAccepted() // Refresh trade data
+      toast({ 
+        title: '✓ Option Approved!', 
+        description: 'Trade option has been updated.',
+        status: 'success',
+        duration: 4000,
+        isClosable: true,
+        position: 'top',
+        bg: 'green.500',
+        color: 'white',
+        borderRadius: 'md',
+        fontSize: 'md',
+        fontWeight: 'bold',
+        boxShadow: 'lg',
+      })
+      onAccepted()
     } catch (e: any) {
       toast({ title: 'Failed to approve change', description: e?.response?.data?.error || 'Try again', status: 'error' })
     }
@@ -241,7 +293,20 @@ const OfferDetailsModal: React.FC<OfferDetailsModalProps> = ({ trade, isOpen, on
       await api.put(`/api/trades/${effectiveTrade.id}`, {
         action: 'reject_option_change',
       } as TradeAction)
-      toast({ title: 'Option change rejected', description: 'The trade will proceed with the original option.', status: 'success' })
+      toast({ 
+        title: '✗ Option Rejected', 
+        description: 'Original trade option will proceed.',
+        status: 'warning',
+        duration: 3000,
+        isClosable: true,
+        position: 'top',
+        bg: 'orange.500',
+        color: 'white',
+        borderRadius: 'md',
+        fontSize: 'md',
+        fontWeight: 'bold',
+        boxShadow: 'lg',
+      })
       onAccepted() // Refresh trade data
     } catch (e: any) {
       toast({ title: 'Failed to reject change', description: e?.response?.data?.error || 'Try again', status: 'error' })

@@ -148,7 +148,20 @@ const TradeModal: React.FC<TradeModalProps> = ({ isOpen, onClose, targetProductI
       }
       console.log('Submitting trade payload:', payload)
       await api.post('/api/trades', payload)
-      toast({ title: 'Trade sent', description: 'Your trade offer was sent to the seller.', status: 'success' })
+      toast({ 
+        title: '📤 Trade Sent!', 
+        description: 'Your offer has been sent to the seller.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+        position: 'top',
+        bg: 'green.500',
+        color: 'white',
+        borderRadius: 'md',
+        fontSize: 'md',
+        fontWeight: 'bold',
+        boxShadow: 'lg',
+      })
       
       // Invalidate received offers cache on the seller's dashboard so the new offer appears
       queryClient.invalidateQueries({ 

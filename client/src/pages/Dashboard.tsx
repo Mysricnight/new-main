@@ -2591,23 +2591,20 @@ const Dashboard: React.FC = () => {
                             { id: 2, user_name: 'Sarah Smith', product_id: 2, product_title: 'iPhone 13' },
                             { id: 3, user_name: 'Mike Johnson', product_id: 3, product_title: 'MacBook Pro' },
                           ]}
-                          onJoinTrade={() => toast({ title: 'Joined Trade Loop', status: 'success' })}
-                          onViewDetails={() => { }}
-                          onDecline={() => { }}
-                          isLoading={false}
-                        />
-                      </Box>
-
-                      {/* Mock Trade Loop 2 */}
-                      <Box p={4} bg={cardBg} borderRadius="lg" borderWidth="1px" borderColor={borderColor}>
-                        <MultiWayTradeUI
-                          participants={[
-                            { id: 4, user_name: 'Emma Wilson', product_id: 4, product_title: 'Galaxy S23' },
-                            { id: 5, user_name: 'Alex Chen', product_id: 5, product_title: 'iPad Air' },
-                            { id: 6, user_name: 'Lisa Anderson', product_id: 6, product_title: 'Apple Watch' },
-                            { id: 7, user_name: 'Tom Davis', product_id: 7, product_title: 'AirPods Pro' },
-                          ]}
-                          onJoinTrade={() => toast({ title: 'Joined Trade Loop', status: 'success' })}
+                          onJoinTrade={() => toast({ 
+                            title: '✓ Joined Trade Loop!', 
+                            description: 'Successfully joined.',
+                            status: 'success',
+                            duration: 3000,
+                            isClosable: true,
+                            position: 'top',
+                            bg: 'cyan.500',
+                            color: 'white',
+                            borderRadius: 'md',
+                            fontSize: 'md',
+                            fontWeight: 'bold',
+                            boxShadow: 'lg',
+                          })}
                           onViewDetails={() => { }}
                           onDecline={() => { }}
                           isLoading={false}
@@ -2624,7 +2621,20 @@ const Dashboard: React.FC = () => {
                             { id: 11, user_name: 'Nina Patel', product_id: 11, product_title: 'Camera' },
                             { id: 12, user_name: 'Kevin Lee', product_id: 12, product_title: 'Headphones' },
                           ]}
-                          onJoinTrade={() => toast({ title: 'Joined Trade Loop', status: 'success' })}
+                          onJoinTrade={() => toast({ 
+                            title: '✓ Joined Trade Loop!', 
+                            description: 'Successfully joined.',
+                            status: 'success',
+                            duration: 3000,
+                            isClosable: true,
+                            position: 'top',
+                            bg: 'cyan.500',
+                            color: 'white',
+                            borderRadius: 'md',
+                            fontSize: 'md',
+                            fontWeight: 'bold',
+                            boxShadow: 'lg',
+                          })}
                           onViewDetails={() => { }}
                           onDecline={() => { }}
                           isLoading={false}
