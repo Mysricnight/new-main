@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { DASHBOARD_QUERY_KEYS } from '../hooks/useDashboard'
 import { useAuth } from './AuthContext'
 import { api, API_BASE_URL } from '../services/api'
 
@@ -12,6 +14,7 @@ const RealtimeContext = createContext<RealtimeContextValue>({ offerCount: 0, not
 
 export const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth()
+  const queryClient = useQueryClient()
   const esRef = useRef<EventSource | null>(null)
   const [offerCount, setOfferCount] = useState(0)
   const [notificationCount, setNotificationCount] = useState(0)
@@ -52,9 +55,17 @@ export const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         switch (payload.type) {
           case 'trade_created':
             refreshCounts()
+            // Invalidate received offers cache so the new offer appears immediately
+            queryClient.invalidateQueries({ 
+              queryKey: DASHBOARD_QUERY_KEYS.receivedOffers 
+            })
             break
           case 'trade_updated':
             refreshCounts()
+            // Also invalidate offers caches for any trade updates
+            queryClient.invalidateQueries({ 
+              queryKey: ['dashboard', 'offers'] 
+            })
             break
           case 'notification':
             refreshCounts()

@@ -161,6 +161,7 @@ const Dashboard: React.FC = () => {
   const [productTitles, setProductTitles] = useState<Map<number, string>>(new Map())
   const productImageCache = useRef<Map<number, string | null>>(new Map())
   const notificationCountsTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const multiWayTradeJoiningRef = useRef(false)
 
   // Delivery modals state
   const [deliveryRequestModalOpen, setDeliveryRequestModalOpen] = useState(false)
@@ -442,6 +443,12 @@ const Dashboard: React.FC = () => {
   }
 
   const handleJoinMultiWayTrade = async (trade: any) => {
+    // Prevent duplicate submissions
+    if (multiWayTradeJoiningRef.current) {
+      return
+    }
+    
+    multiWayTradeJoiningRef.current = true
     try {
       setMultiWayTradeJoining(true)
       await api.post(`/api/multi-way-trades/${trade.id}/join`, {
@@ -464,6 +471,7 @@ const Dashboard: React.FC = () => {
       })
     } finally {
       setMultiWayTradeJoining(false)
+      multiWayTradeJoiningRef.current = false
     }
   }
 

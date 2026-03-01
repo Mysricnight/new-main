@@ -1,6 +1,8 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState, useMemo, useRef } from 'react'
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, VStack, Grid, Box, Image, Text, FormControl, FormLabel, Input, HStack, Button, useToast, Divider, Badge, Card, CardBody, Icon, useColorModeValue, Textarea } from '@chakra-ui/react'
 import { FaMapMarkerAlt, FaTruck, FaCheckCircle } from 'react-icons/fa'
+import { useQueryClient } from '@tanstack/react-query'
+import { DASHBOARD_QUERY_KEYS } from '../hooks/useDashboard'
 import { useAuth } from '../contexts/AuthContext'
 import { api } from '../services/api'
 import { Product, TradeCreate, TradeOption } from '../types'
@@ -15,6 +17,7 @@ interface TradeModalProps {
 const TradeModal: React.FC<TradeModalProps> = ({ isOpen, onClose, targetProductId }) => {
   const { user } = useAuth()
   const toast = useToast()
+  const queryClient = useQueryClient()
   const [userProducts, setUserProducts] = useState<Product[]>([])
   const [targetProduct, setTargetProduct] = useState<Product | null>(null)
   const [selectedOfferIds, setSelectedOfferIds] = useState<number[]>([])
@@ -27,6 +30,7 @@ const TradeModal: React.FC<TradeModalProps> = ({ isOpen, onClose, targetProductI
   const borderColor = useColorModeValue('gray.200', 'gray.700')
   const selectedBg = useColorModeValue('brand.50', 'brand.900')
   const selectedBorder = useColorModeValue('brand.500', 'brand.400')
+  const isSubmittingRef = useRef(false)
 
   const selectedProducts = useMemo(() => userProducts.filter(p => selectedOfferIds.includes(p.id)), [userProducts, selectedOfferIds])
 
@@ -86,6 +90,11 @@ const TradeModal: React.FC<TradeModalProps> = ({ isOpen, onClose, targetProductI
   }
 
   const submitTrade = async () => {
+    // Prevent duplicate submissions
+    if (isSubmittingRef.current) {
+      return
+    }
+
     if (!targetProductId || selectedOfferIds.length === 0) {
       toast({ title: 'Select items', description: 'Please select at least one of your items to offer.', status: 'warning' })
       return
@@ -94,6 +103,8 @@ const TradeModal: React.FC<TradeModalProps> = ({ isOpen, onClose, targetProductI
       toast({ title: 'Select trade option', description: 'Please select Meetup or Delivery option.', status: 'warning' })
       return
     }
+    
+    isSubmittingRef.current = true
     try {
       setSubmittingTrade(true)
       // Use user's coordinates for delivery if available
@@ -112,6 +123,12 @@ const TradeModal: React.FC<TradeModalProps> = ({ isOpen, onClose, targetProductI
       console.log('Submitting trade payload:', payload)
       await api.post('/api/trades', payload)
       toast({ title: 'Trade sent', description: 'Your trade offer was sent to the seller.', status: 'success' })
+      
+      // Invalidate received offers cache on the seller's dashboard so the new offer appears
+      queryClient.invalidateQueries({ 
+        queryKey: DASHBOARD_QUERY_KEYS.receivedOffers 
+      })
+      
       setSelectedOfferIds([])
       setTradeMessage('')
       setCashAmount('')
@@ -122,6 +139,7 @@ const TradeModal: React.FC<TradeModalProps> = ({ isOpen, onClose, targetProductI
       toast({ title: 'Failed', description: e?.response?.data?.error || 'Failed to send trade', status: 'error' })
     } finally {
       setSubmittingTrade(false)
+      isSubmittingRef.current = false
     }
   }
 
@@ -434,8 +452,8 @@ const TradeModal: React.FC<TradeModalProps> = ({ isOpen, onClose, targetProductI
                 </Box>
               </Box>
               <HStack justify="flex-end" spacing={3}>
-                <Button variant="ghost" onClick={() => setShowConfirmModal(false)}>Back</Button>
-                <Button colorScheme="brand" isLoading={submittingTrade} onClick={submitTrade}>Send Offer</Button>
+                <Button variant="ghost" onClick={() => setShowConfirmModal(false)} isDisabled={submittingTrade}>Back</Button>
+                <Button colorScheme="brand" isLoading={submittingTrade} isDisabled={submittingTrade} onClick={submitTrade}>Send Offer</Button>
               </HStack>
             </VStack>
           </ModalBody>

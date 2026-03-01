@@ -216,6 +216,7 @@ const MultiWayTradeUI: React.FC<MultiWayTradeUIProps> = ({
               size="sm"
               onClick={onOpen}
               isLoading={isLoading}
+              isDisabled={isLoading}
               loadingText="Joining..."
               flex={1}
               fontWeight="bold"
@@ -227,6 +228,7 @@ const MultiWayTradeUI: React.FC<MultiWayTradeUIProps> = ({
               variant="outline"
               size="sm"
               onClick={onDecline}
+              isDisabled={isLoading}
               flex={1}
               fontWeight="bold"
             >
@@ -321,7 +323,7 @@ const MultiWayTradeUI: React.FC<MultiWayTradeUIProps> = ({
           </ModalBody>
 
           <ModalFooter gap={2}>
-            <Button variant="outline" onClick={onClose}>
+            <Button variant="outline" onClick={onClose} isDisabled={isLoading}>
               Cancel
             </Button>
             <Button
@@ -331,6 +333,7 @@ const MultiWayTradeUI: React.FC<MultiWayTradeUIProps> = ({
                 onClose()
               }}
               isLoading={isLoading}
+              isDisabled={isLoading}
               loadingText="Joining..."
             >
               Confirm & Join

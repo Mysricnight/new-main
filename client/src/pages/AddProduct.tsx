@@ -36,6 +36,8 @@ import {
 import { AddIcon, CloseIcon, ArrowForwardIcon, ArrowBackIcon, WarningIcon } from '@chakra-ui/icons'
 import { useAuth } from '../contexts/AuthContext'
 import { useProducts } from '../contexts/ProductContext'
+import { useQueryClient } from '@tanstack/react-query'
+import { DASHBOARD_QUERY_KEYS } from '../hooks/useDashboard'
 import { api } from '../services/api'
 import { ProductCreate } from '../types'
 import FloatingTab from '../components/FloatingTab'
@@ -46,6 +48,7 @@ const AddProduct: React.FC = () => {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { createProduct } = useProducts()
+  const queryClient = useQueryClient()
   const toast = useToast()
 
   const [currentStep, setCurrentStep] = useState(1)
@@ -410,7 +413,14 @@ const AddProduct: React.FC = () => {
         duration: 3000,
         isClosable: true,
       })
+// Invalidate React Query cache for dashboard products to show new product
+      if (user?.id) {
+        queryClient.invalidateQueries({ 
+          queryKey: [...DASHBOARD_QUERY_KEYS.products, user.id] 
+        })
+      }
 
+      
       navigate('/dashboard')
     } catch (error: any) {
       console.error('=== PRODUCT CREATION ERROR ===')
