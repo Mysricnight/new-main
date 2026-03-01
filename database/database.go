@@ -437,6 +437,7 @@ func ensureUserColumns() {
 		{"department", "VARCHAR(255) NULL"},
 		{"bio", "TEXT NULL"},
 		{"badges", "JSON NULL"},
+		{"dashboard_layout", "ENUM('grid', 'list', 'compact') DEFAULT 'grid'"},
 	}
 
 	for _, col := range columns {

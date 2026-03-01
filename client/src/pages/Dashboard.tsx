@@ -60,6 +60,7 @@ import { FaHandshake, FaTimes, FaCheckCircle, FaClock, FaHistory, FaShoppingBag,
 import { FiShoppingBag, FiRefreshCw, FiMessageCircle, FiFilter, FiArrowDown } from 'react-icons/fi'
 import { formatPHP } from '../utils/currency'
 import { getFirstImage } from '../utils/imageUtils'
+import { DashboardLayout, DASHBOARD_LAYOUTS, DEFAULT_LAYOUT, getLayoutConfig } from '../utils/dashboardLayouts'
 import OfferDetailsModal from '../components/OfferDetailsModal'
 import TradeCompletionModal from '../components/TradeCompletionModal'
 import ViewTradeModal from '../components/ViewTradeModal'
@@ -79,7 +80,7 @@ import {
 } from '../hooks/useDashboard'
 
 const Dashboard: React.FC = () => {
-  const { user, loading, isAuthenticated } = useAuth()
+  const { user, loading, isAuthenticated, refreshUser } = useAuth()
   const { deleteProduct } = useProducts()
   const { refreshCounts } = useRealtime()
   const navigate = useNavigate()
@@ -179,6 +180,16 @@ const Dashboard: React.FC = () => {
   // Color mode values
   const cardBg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.700')
+
+  // Dashboard layout preference
+  const [dashboardLayout, setDashboardLayout] = useState<DashboardLayout>(DEFAULT_LAYOUT)
+  const [savingLayout, setSavingLayout] = useState(false)
+
+  useEffect(() => {
+    if (user?.dashboard_layout) {
+      setDashboardLayout(user.dashboard_layout as DashboardLayout)
+    }
+  }, [user?.dashboard_layout])
 
   useEffect(() => {
     if (user && user?.id) {
@@ -965,6 +976,38 @@ const Dashboard: React.FC = () => {
   const showPopup = (config: any) => {
     setPopupConfig(config)
     setPopupOpen(true)
+  }
+
+  // Handle dashboard layout change
+  const handleLayoutChange = async (newLayout: DashboardLayout) => {
+    setDashboardLayout(newLayout)
+    setSavingLayout(true)
+    try {
+      await api.put('/api/users/preferences', { dashboard_layout: newLayout })
+      await refreshUser()
+      toast({
+        title: 'Layout Updated',
+        description: `Dashboard view changed to ${DASHBOARD_LAYOUTS[newLayout].label}`,
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+      })
+    } catch (error) {
+      console.error('Failed to save layout preference:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to save layout preference',
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+      })
+      // Revert on error
+      if (user?.dashboard_layout) {
+        setDashboardLayout(user.dashboard_layout as DashboardLayout)
+      }
+    } finally {
+      setSavingLayout(false)
+    }
   }
 
   const getPaginatedItems = (items: Product[], currentPage: number) => {
@@ -2131,6 +2174,31 @@ const Dashboard: React.FC = () => {
                   flexShrink={0}
                   justify="flex-end"
                 >
+                  {activeTab === 0 && (
+                    <Select
+                      value={dashboardLayout}
+                      onChange={(e) => handleLayoutChange(e.target.value as DashboardLayout)}
+                      isDisabled={savingLayout}
+                      size="sm"
+                      w={{ base: '100px', md: '140px' }}
+                      bg={cardBg}
+                      borderRadius="md"
+                      _hover={{
+                        borderColor: 'brand.300',
+                      }}
+                      _focus={{
+                        borderColor: 'brand.500',
+                        boxShadow: '0 0 0 1px rgba(66, 153, 225, 0.5)'
+                      }}
+                      title="Change dashboard layout"
+                    >
+                      {Object.entries(DASHBOARD_LAYOUTS).map(([key, config]) => (
+                        <option key={key} value={key}>
+                          {config.label}
+                        </option>
+                      ))}
+                    </Select>
+                  )}
                 </HStack>
               </Flex>
             </Box>
@@ -2153,7 +2221,7 @@ const Dashboard: React.FC = () => {
 
                     {/* Products Grid - Apply Sort */}
                     {productsLoading ? (
-                      <SimpleGrid columns={{ base: 1, md: 2, lg: 3, xl: 4 }} spacing={4}>
+                      <SimpleGrid columns={getLayoutConfig(dashboardLayout).columns} spacing={getLayoutConfig(dashboardLayout).spacing}>
                         {Array.from({ length: 8 }).map((_, i) => (
                           <ProductCardSkeleton key={i} />
                         ))}
@@ -2194,7 +2262,7 @@ const Dashboard: React.FC = () => {
                       </Fade>
                     ) : (
                       <>
-                        <SimpleGrid columns={{ base: 1, md: 2, lg: 3, xl: 4 }} spacing={4}>
+                        <SimpleGrid columns={getLayoutConfig(dashboardLayout).columns} spacing={getLayoutConfig(dashboardLayout).spacing}>
                           {getPaginatedItems(
                             filteredProducts.sort((a, b) => {
                               const aDate = new Date(a.created_at).getTime()

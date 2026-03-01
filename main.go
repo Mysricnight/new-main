@@ -196,6 +196,7 @@ func main() {
 	users := api.Group("/users")
 	users.Get("/profile", middleware.AuthMiddleware(), userHandler.GetProfile)
 	users.Put("/profile", middleware.AuthMiddleware(), userHandler.UpdateProfile)
+	users.Put("/preferences", middleware.AuthMiddleware(), userHandler.UpdateUserPreferences)
 	users.Post("/profile-picture", middleware.AuthMiddleware(), userHandler.UploadProfilePicture)
 
 	// Saved products routes (must be BEFORE dynamic ":id" route)

@@ -415,6 +415,70 @@ func (h *UserHandler) UpdateProfile(c *fiber.Ctx) error {
 	})
 }
 
+// UpdateUserPreferences updates the current user's preferences
+func (h *UserHandler) UpdateUserPreferences(c *fiber.Ctx) error {
+	userID, ok := middleware.GetUserIDFromContext(c)
+	if !ok {
+		return c.Status(401).JSON(models.APIResponse{
+			Success: false,
+			Error:   "User not authenticated",
+		})
+	}
+
+	var preferencesData struct {
+		DashboardLayout *string `json:"dashboard_layout"`
+	}
+
+	if err := c.BodyParser(&preferencesData); err != nil {
+		return c.Status(400).JSON(models.APIResponse{
+			Success: false,
+			Error:   "Invalid request body",
+		})
+	}
+
+	// Build update query dynamically
+	query := "UPDATE users SET updated_at = CURRENT_TIMESTAMP"
+	var args []interface{}
+
+	if preferencesData.DashboardLayout != nil {
+		// Validate dashboard_layout enum values
+		validLayouts := map[string]bool{"grid": true, "list": true, "compact": true}
+		if !validLayouts[*preferencesData.DashboardLayout] {
+			return c.Status(400).JSON(models.APIResponse{
+				Success: false,
+				Error:   "Invalid dashboard layout value. Must be 'grid', 'list', or 'compact'",
+			})
+		}
+		query += ", dashboard_layout = ?"
+		args = append(args, *preferencesData.DashboardLayout)
+	}
+
+	query += " WHERE id = ?"
+	args = append(args, userID)
+
+	_, err := h.db.Exec(query, args...)
+	if err != nil {
+		// Handle missing columns
+		if strings.Contains(err.Error(), "Unknown column") || strings.Contains(err.Error(), "1054") {
+			// Try adding dashboard_layout column if it doesn't exist
+			h.db.Exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS dashboard_layout ENUM('grid', 'list', 'compact') DEFAULT 'grid'")
+			// Retry update
+			_, err = h.db.Exec(query, args...)
+		}
+		if err != nil {
+			return c.Status(500).JSON(models.APIResponse{
+				Success: false,
+				Error:   "Failed to update preferences",
+			})
+		}
+	}
+
+	return c.JSON(models.APIResponse{
+		Success: true,
+		Message: "Preferences updated successfully",
+	})
+}
+
 // UploadProfilePicture handles uploading a single profile image and returns its URL
 func (h *UserHandler) UploadProfilePicture(c *fiber.Ctx) error {
 	userID, ok := middleware.GetUserIDFromContext(c)
