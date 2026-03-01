@@ -215,12 +215,40 @@ const SettingsPage: React.FC = () => {
     }
   }, [darkMode, colorMode, toggleColorMode])
 
-  // Ensure high contrast remains disabled (defensive)
+  // Apply high contrast mode when user toggles switch
   useEffect(() => {
+    const htmlElement = document.documentElement
     if (highContrast) {
-      setHighContrast(false)
+      htmlElement.style.filter = 'contrast(1.2)'
+      htmlElement.classList.add('high-contrast-mode')
+    } else {
+      htmlElement.style.filter = ''
+      htmlElement.classList.remove('high-contrast-mode')
     }
-  }, []) // run once on mount
+  }, [highContrast])
+
+  // Handle dark mode toggle
+  const handleDarkModeToggle = () => {
+    const newDarkMode = !darkMode
+    setDarkMode(newDarkMode)
+    toggleColorMode()
+    setHasUnsavedChanges(true)
+  }
+
+  // Handle high contrast toggle
+  const handleHighContrastToggle = () => {
+    const newHighContrast = !highContrast
+    setHighContrast(newHighContrast)
+    setHasUnsavedChanges(true)
+  }
+
+  // Ensure high contrast remains disabled (defensive)
+  // REMOVED: This was preventing high contrast from being enabled
+  // useEffect(() => {
+  //   if (highContrast) {
+  //     setHighContrast(false)
+  //   }
+  // }, [])
 
   // Track changes
   useEffect(() => {
@@ -768,14 +796,9 @@ const SettingsPage: React.FC = () => {
                   </Box>
                   <Switch
                     isChecked={darkMode}
-                    onChange={(e) => {
-                      setDarkMode(e.target.checked)
-                      setHasUnsavedChanges(true)
-                    }}
+                    onChange={handleDarkModeToggle}
                     colorScheme="brand"
                     size="lg"
-                    isDisabled
-                    title="Dark mode is locked"
                   />
                 </Flex>
 
@@ -869,10 +892,9 @@ const SettingsPage: React.FC = () => {
                         </Text>
                       </Box>
                       <Switch
-                        isChecked={false}
-                        isDisabled
+                        isChecked={highContrast}
+                        onChange={handleHighContrastToggle}
                         colorScheme="brand"
-                        title="High contrast mode is disabled"
                       />
                     </Flex>
                   </VStack>

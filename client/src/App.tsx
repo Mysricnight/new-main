@@ -41,17 +41,29 @@ const ThemeApplier: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       const saved = localStorage.getItem('user_settings')
       if (saved) {
         const parsed = JSON.parse(saved)
+        // Apply dark mode setting
         if (parsed.darkMode !== undefined) {
           const targetMode = parsed.darkMode ? 'dark' : 'light'
           if (colorMode !== targetMode) {
             setColorMode(targetMode)
           }
         }
+        // Apply high contrast setting
+        if (parsed.highContrast !== undefined) {
+          const htmlElement = document.documentElement
+          if (parsed.highContrast) {
+            htmlElement.style.filter = 'contrast(1.2)'
+            htmlElement.classList.add('high-contrast-mode')
+          } else {
+            htmlElement.style.filter = ''
+            htmlElement.classList.remove('high-contrast-mode')
+          }
+        }
       }
     } catch (e) {
       // ignore
     }
-  }, [])
+  }, [colorMode, setColorMode])
   
   return <>{children}</>
 }
