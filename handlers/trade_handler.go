@@ -83,6 +83,21 @@ func (h *TradeHandler) CreateTrade(c *fiber.Ctx) error {
 		}
 	}
 
+	// Check if user already has a pending trade offer on this product
+	var existingTradeID int
+	err = h.db.QueryRow(`
+		SELECT id FROM trades 
+		WHERE buyer_id = ? AND target_product_id = ? AND status = 'pending'
+		LIMIT 1
+	`, userID, payload.TargetProductID).Scan(&existingTradeID)
+	if err == nil {
+		// A pending trade already exists
+		return c.Status(409).JSON(models.APIResponse{Success: false, Error: "You already have a pending offer on this product. Please wait for the seller to respond or cancel your existing offer."})
+	} else if err != sql.ErrNoRows {
+		// Some other database error
+		return c.Status(500).JSON(models.APIResponse{Success: false, Error: "Failed to check existing offers"})
+	}
+
 	// Use a transaction to ensure trade and items are created together
 	tx, err := h.db.Begin()
 	if err != nil {

@@ -107,6 +107,32 @@ const TradeModal: React.FC<TradeModalProps> = ({ isOpen, onClose, targetProductI
     isSubmittingRef.current = true
     try {
       setSubmittingTrade(true)
+      
+      // Check if user already has a pending offer on this product
+      try {
+        const existingOffersRes = await api.get('/api/trades', {
+          params: {
+            direction: 'outgoing',
+            status: 'pending',
+            limit: 100
+          }
+        })
+        const existingTrades = Array.isArray(existingOffersRes.data?.data) ? existingOffersRes.data.data : (Array.isArray(existingOffersRes.data) ? existingOffersRes.data : [])
+        const hasPendingOffer = existingTrades.some((t: any) => t.target_product_id === targetProductId)
+        
+        if (hasPendingOffer) {
+          toast({ 
+            title: 'Offer already exists', 
+            description: 'You already have a pending offer on this product. Please wait for the seller to respond or cancel your existing offer.',
+            status: 'warning' 
+          })
+          return
+        }
+      } catch (checkErr) {
+        console.error('Failed to check existing offers:', checkErr)
+        // Continue anyway, let backend catch it
+      }
+
       // Use user's coordinates for delivery if available
       const deliveryAddress = user?.latitude && user?.longitude 
         ? `${user.latitude}, ${user.longitude}`
